@@ -4,7 +4,7 @@
 каждые 30–60 секунд с серверов в РФ (доступность, скорость и содержимое — ловит
 случай «код 200, но сайт лежит»), SSL-сертификаты с предупреждением за 14/7/3 дня,
 Ping. Алерты в Email, MAX и Webhook — одно сообщение на инцидент. Публичные
-статус-страницы. Первый месяц бесплатно, от 90 ₽/мес.
+статус-страницы. Первый месяц бесплатно, далее от 90 ₽/мес.
 
 [Сайт](https://fidevisio.ru) · [Тарифы](https://fidevisio.ru/pricing) ·
 [Помощь](https://fidevisio.ru/help)
@@ -24,15 +24,15 @@ Ping. Алерты в Email, MAX и Webhook — одно сообщение на
 
 ```mermaid
 flowchart LR
-    S[Шедулер проверок<br/>arq worker] --> C[HTTP / SSL / Ping<br/>executors]
-    C --> DB[(PostgreSQL)]
-    DB --> A[Агрегация и инциденты<br/>автомат состояний, дебаунс]
-    A --> N[Каналы уведомлений<br/>Email, MAX, Webhook]
-    A --> SP[Публичные<br/>статус-страницы]
-    API[FastAPI] --> DB
-    SPA[React + TS SPA] --> API
-    R[Redis] -.-> S
-    R -.-> API
+    Scheduler["Шедулер проверок<br/>arq worker"] --> Checkers["HTTP / SSL / Ping<br/>executors"]
+    Checkers --> DB[("PostgreSQL")]
+    DB --> Aggregator["Агрегация и инциденты<br/>автомат состояний, дебаунс"]
+    Aggregator --> Notify["Каналы уведомлений<br/>Email, MAX, Webhook"]
+    Aggregator --> StatusPages["Публичные<br/>статус-страницы"]
+    API["FastAPI"] --> DB
+    SPA["React + TS SPA"] --> API
+    Redis["Redis"] -.-> Scheduler
+    Redis -.-> API
 ```
 
 <!-- Скриншоты (замазать реальные домены): дашборд с мониторами, карточка
