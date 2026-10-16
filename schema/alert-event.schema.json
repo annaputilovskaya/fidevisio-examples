@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fidevisio.ru/schemas/alert-event.schema.json",
+  "title": "FideVisio webhook payload",
+  "description": "Тело POST-запроса, который FideVisio отправляет на webhook-канал. Подпись тела — заголовок X-Signature (HMAC-SHA256).",
+  "type": "object",
+  "required": ["provider", "timestamp", "event"],
+  "properties": {
+    "provider": { "const": "webhook" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "event": { "$ref": "#/$defs/event" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "check": {
+      "type": "object",
+      "description": "Одна упавшая проверка в агрегированном событии.",
+      "required": ["kind"],
+      "properties": {
+        "kind": { "type": "string", "description": "Тип проверки: http, ssl или ping." },
+        "detail": {
+          "type": ["string", "null"],
+          "description": "Деталь ошибки: HTTP nnn, timeout, connection refused."
+        },
+        "transport": {
+          "type": ["string", "null"],
+          "enum": ["tcp", "icmp", null],
+          "description": "Транспорт ping, если известен."
+        },
+        "target_port": { "type": ["integer", "null"], "description": "Порт ping, если известен." }
+      },
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "required": ["event_type", "monitor_name", "monitor_url"],
+      "properties": {
+        "event_type": {
+          "type": "string",
+          "enum": ["down", "also_down", "recovered", "ssl_expiring", "ssl_expired", "test"]
+        },
+        "incident_id": { "type": ["string", "null"], "format": "uuid" },
+        "monitor_name": { "type": "string" },
+        "monitor_url": { "type": "string", "format": "uri" },
+        "error_detail": { "type": ["string", "null"] },
+        "detected_at": { "type": ["string", "null"], "format": "date-time" },
+        "recovered_at": { "type": ["string", "null"], "format": "date-time" },
+        "dashboard_url": { "type": ["string", "null"], "format": "uri" },
+        "timezone": { "type": ["string", "null"], "description": "IANA-часовой пояс пользователя (null = UTC)." },
+        "expires_at": { "type": ["string", "null"], "format": "date-time" },
+        "days_left": { "type": ["integer", "null"] },
+        "check_kind": { "type": ["string", "null"] },
+        "transport": { "type": ["string", "null"] },
+        "target_port": { "type": ["integer", "null"] },
+        "checks": {
+          "type": "array",
+          "description": "Все упавшие проверки инцидента (для down/also_down).",
+          "items": { "$ref": "#/$defs/check" }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
